@@ -1,5 +1,5 @@
 <%- include('partials/header.ejs'); -%>
-
+<link rel="stylesheet" href="styles/main.css" />
   <div class="box" id="heading">
     <h1>
       <%= listTitle %>
@@ -32,6 +32,11 @@
           <input type="text" name="newItem" placeholder="New Item" autocomplete="off" autofocus="true" />
           <button class="add" type="submit" name="list" value=<%=listTitle %> >+</button>
         </form>
+  </div>
+  <div class="box">
+    <h1>
+      <a href="/logout">Logout</a>
+    </h1>
   </div>
 
   <script>
