@@ -1,50 +1,106 @@
 <%- include('partials/header.ejs'); -%>
-<link rel="stylesheet" href="styles/main.css" />
-  <div class="box" id="heading">
-    <h1>
-      <%= listTitle %>
-    </h1>
-  </div>
-  <div class="box">
-    <% for(let item of listItems){%>
-      <div class="item">
-        <form action="/delete" method="post">
-          <input type="checkbox" onchange="this.form.submit()" name="deleteItemId" value="<%= item.id %>">
-        </form>
 
-        <p id="title<%=item.id%>">
-          <%= item.title %>
-        </p>
-
-        <form class="edit" action="/edit" method="post">
-          <input type="hidden" name="updatedItemId" value="<%= item.id %>">
-          <input id="input<%=item.id%>" type="text" name="updatedItemTitle" value="<%= item.title %>" autocomplete="off"
-            autofocus="true" hidden="true" />
-          <button id="done<%=item.id%>" class="edit" type="submit" hidden><img class="icon"
-              src="/assets/icons/check-solid.svg" alt="tick image"></button>
-        </form>
-        <button id="edit<%=item.id%>" class="edit" onclick="handler('<%=item.id%>')"><img class="icon"
-            src="/assets/icons/pencil-solid.svg" alt="pencil image"></button>
+<div class="min-h-screen">
+  <nav class="mb-8">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+      <div class="flex items-center gap-6">
+        <div class="navbar-title">StudyTrack</div>
+        <div class="welcome-user">
+          Welcome, <%= user?.name || user?.email || "User" %>!
+        </div>
       </div>
-      <% } %>
-
-        <form class="item" action="/add" method="post">
-          <input type="text" name="newItem" placeholder="New Item" autocomplete="off" autofocus="true" />
-          <button class="add" type="submit" name="list" value=<%=listTitle %> >+</button>
+      <div class="flex items-center gap-4">
+        <form action="/search" method="get" class="relative">
+          <input type="text" name="q" placeholder="Search resources..." />
+          <button type="submit">🔍</button>
         </form>
-  </div>
-  <div class="box">
-    <h1>
-      <a href="/logout">Logout</a>
-    </h1>
-  </div>
+        <form action="/logout" method="get">
+          <button>Leave</button>
+        </form>
+      </div>
+    </div>
+  </nav>
 
-  <script>
-    function handler(id) {
-      document.getElementById("title" + id).setAttribute("hidden", true)
-      document.getElementById("edit" + id).setAttribute("hidden", true)
-      document.getElementById("done" + id).removeAttribute("hidden")
-      document.getElementById("input" + id).removeAttribute("hidden")
-    }
-  </script>
-  <%- include('partials/footer.ejs'); -%>
+  <div class="container mx-auto px-4">
+    <div class="mb-6">
+      <form action="/home" method="get" class="flex flex-wrap items-center gap-2">
+        <% tags.forEach(tag => { %>
+          <label class="flex items-center space-x-1 cursor-pointer mb-1">
+            <input type="checkbox" name="tags" value="<%= tag.id %>"
+              <%= Array.isArray(selectedTags) && selectedTags.includes(String(tag.id)) ? 'checked' : '' %> />
+            <span class="tag-bubble <%= Array.isArray(selectedTags) && selectedTags.includes(String(tag.id)) ? 'selected' : '' %>"><%= tag.name %></span>
+          </label>
+        <% }) %>
+        <button type="submit" class="ml-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Filter</button>
+        <% if (selectedTags && selectedTags.length > 0) { %>
+          <a href="/home" class="clear-btn ml-2">Clear</a>
+        <% } %>
+      </form>
+    </div>
+
+    <div class="stats-container">
+      <div class="stats-box">
+        <div class="text-lg font-bold text-blue-600"><%= stats?.completed || 0 %></div>
+        <div class="text-xs text-gray-500">Completed</div>
+      </div>
+      <div class="stats-box">
+        <div class="text-lg font-bold text-yellow-500"><%= stats?.inProgress || 0 %></div>
+        <div class="text-xs text-gray-500">In Progress</div>
+      </div>
+      <div class="stats-box">
+        <div class="text-lg font-bold text-gray-400"><%= stats?.notStarted || 0 %></div>
+        <div class="text-xs text-gray-500">Not Started</div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <% if (typeof resources !== "undefined" && resources.length > 0) { %>
+        <% resources.forEach(resource => { %>
+          <div class="resource-card w-full max-w-sm">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <h2 class="text-xl font-semibold text-gray-800"><%= resource.title %></h2>
+                <span class="px-2 py-1 text-xs rounded bg-gray-700 text-gray-200 font-semibold"><%= resource.type %></span>
+              </div>
+              <p class="text-gray-600 mb-2"><%= resource.description %></p>
+              <div class="flex flex-wrap gap-2 mb-2">
+                <% if (resource.tags) { resource.tags.forEach(tag => { %>
+                  <span class="bg-gray-700 text-gray-200 px-2 py-1 rounded text-xs"><%= tag.name %></span>
+                <% }) } %>
+              </div>
+              <div class="flex items-center gap-2 mb-2">
+                <span class="text-xs font-medium text-gray-500">Status:</span>
+                <span class="text-xs font-semibold <%= resource.progress_status === 'Completed' ? 'text-green-600' : resource.progress_status === 'In Progress' ? 'text-yellow-600' : 'text-gray-500' %>">
+                  <%= resource.progress_status %>
+                </span>
+              </div>
+              <% if(resource.url) { %>
+                <a href="<%= resource.url %>" target="_blank" class="text-blue-500 hover:underline text-xs">Open Resource</a>
+              <% } %>
+            </div>
+            <div class="flex justify-between items-center mt-4">
+              <div class="flex gap-2">
+                <form action="/edit/<%= resource.id %>" method="get">
+                  <button type="submit" class="text-blue-500 hover:text-blue-700">
+                    Edit
+                  </button>
+                </form>
+                <form action="/delete/<%= resource.id %>" method="post" onsubmit="return confirm('Delete this resource?');">
+                  <button type="submit" class="text-red-500 hover:text-red-700">
+                    Delete
+                  </button>
+                </form>
+              </div>
+              <a href="/notes/<%= resource.id %>" class="text-gray-500 hover:text-blue-500 text-xs">Notes</a>
+            </div>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <div class="col-span-3 text-center text-gray-500 py-10">
+          No resources found. Click the + button to add your first resource!
+        </div>
+      <% } %>
+    </div>
+    <a href="/add" class="fixed">+</a>
+  </div>
+</div>

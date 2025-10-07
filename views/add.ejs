@@ -1,0 +1,117 @@
+<%- include('partials/header.ejs'); -%>
+
+<div class="min-h-screen bg-gray-900 text-gray-100 px-4 py-8">
+  <div class="max-w-2xl mx-auto">
+    <h1 class="text-3xl font-bold mb-6 text-blue-400">Add New Resource</h1>
+    <form action="/add" method="POST" class="bg-gray-800 p-6 rounded-xl shadow-md space-y-6">
+      <div>
+        <label class="block font-semibold mb-1">Title</label>
+        <input
+          type="text"
+          name="title"
+          required
+          class="w-full border border-gray-700 rounded px-3 py-2 bg-gray-900 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+      <div>
+        <label class="block font-semibold mb-1">Type</label>
+        <select
+          name="type"
+          required
+          class="w-full border border-gray-700 rounded px-3 py-2 bg-gray-900 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="Book">Book</option>
+          <option value="Course">Course</option>
+          <option value="Article">Article</option>
+          <option value="Video">Video</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div>
+        <label class="block font-semibold mb-1">URL</label>
+        <input
+          type="url"
+          name="url"
+          class="w-full border border-gray-700 rounded px-3 py-2 bg-gray-900 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+      <div>
+        <label class="block font-semibold mb-1">Description</label>
+        <textarea
+          name="description"
+          class="w-full border border-gray-700 rounded px-3 py-2 bg-gray-900 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          rows="3"
+        ></textarea>
+      </div>
+      <div>
+        <label class="block font-semibold mb-2">Tags</label>
+        <div id="tag-bubbles" class="flex flex-wrap gap-2 mb-1">
+          <% tags.forEach(tag => { %>
+            <button
+              type="button"
+              class="tag-bubble px-4 py-2 rounded-full text-sm font-semibold bg-gray-700 text-gray-200 hover:bg-blue-600 transition"
+              data-tag-id="<%= tag.id %>"
+            >
+              <%= tag.name %>
+            </button>
+          <% }) %>
+        </div>
+        <div id="selected-tags"></div>
+        <small class="block mt-1 text-gray-400">Click to select/deselect tags</small>
+      </div>
+      <div>
+        <label class="block font-semibold mb-1">Progress Status</label>
+        <select
+          name="progress_status"
+          required
+          class="w-full border border-gray-700 rounded px-3 py-2 bg-gray-900 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="Not Started">Not Started</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Completed">Completed</option>
+        </select>
+      </div>
+      <div class="pt-2">
+        <button
+          type="submit"
+          class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition font-semibold shadow"
+        >
+          Add Resource
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  const tagBubbles = document.querySelectorAll('.tag-bubble');
+  const selectedTagsDiv = document.getElementById('selected-tags');
+  let selectedTagIds = [];
+
+  tagBubbles.forEach(btn => {
+    btn.addEventListener('click', function() {
+      const tagId = this.getAttribute('data-tag-id');
+      if (selectedTagIds.includes(tagId)) {
+        selectedTagIds = selectedTagIds.filter(id => id !== tagId);
+        this.classList.remove('bg-blue-600', 'text-white', 'shadow');
+        this.classList.add('bg-gray-700', 'text-gray-200');
+      } else {
+        selectedTagIds.push(tagId);
+        this.classList.add('bg-blue-600', 'text-white', 'shadow');
+        this.classList.remove('bg-gray-700', 'text-gray-200');
+      }
+      renderSelectedTags();
+    });
+  });
+
+  function renderSelectedTags() {
+    selectedTagsDiv.innerHTML = '';
+    selectedTagIds.forEach(tagId => {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'tags';
+      input.value = tagId;
+      selectedTagsDiv.appendChild(input);
+    });
+  }
+</script>
