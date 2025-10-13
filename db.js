@@ -1,13 +1,24 @@
 import pkg from "pg";
+import dotenv from "dotenv";
+dotenv.config();
+
 const { Client } = pkg;
 
-const db = new Client({
-  user: "postgres",
-  host: "localhost",
-  database: "permalist",
-  password: "4444",
-  port: 5432,
-});
+const isRender = !!process.env.DATABASE_URL;
+
+const db = isRender
+  ? new Client({
+      connectionString: process.env.DATABASE_URL,
+      ssl: { rejectUnauthorized: false },
+    })
+  : new Client({
+      user: process.env.DB_USER,
+      host: process.env.DB_HOST,
+      database: process.env.DB_NAME,
+      password: process.env.DB_PASSWORD,
+      port: process.env.DB_PORT,
+    });
+
 db.connect();
 
 export default db;

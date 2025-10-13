@@ -8,7 +8,9 @@ import initializePassport from "./passportConfig.js";
 import db from "./db.js";
 import session from "express-session";
 import flash from "connect-flash";
+import dotenv from "dotenv";
 
+dotenv.config();
 
 initializePassport(passport);
 
@@ -17,7 +19,7 @@ const port = 3000;
 
 app.use(
   session({
-    secret: "yourSecretKey",
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
   })
