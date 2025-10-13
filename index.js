@@ -1,7 +1,7 @@
 import express from "express";
 import bodyParser from "body-parser";
-import pg from "pg";
 import pkg from "pg";
+const { Client } = pkg;
 import bcrypt from "bcrypt";
 import passport from "passport";
 import initializePassport from "./passportConfig.js";
@@ -25,7 +25,6 @@ app.use(
   })
 );
 
-export default db;
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(bodyParser.urlencoded({ extended: true }));
