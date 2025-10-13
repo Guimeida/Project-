@@ -1,7 +1,6 @@
 import express from "express";
 import bodyParser from "body-parser";
 import pkg from "pg";
-const { Client } = pkg;
 import bcrypt from "bcrypt";
 import passport from "passport";
 import initializePassport from "./passportConfig.js";
@@ -14,8 +13,9 @@ dotenv.config();
 
 initializePassport(passport);
 
+const { Client } = pkg;
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 app.use(
   session({
