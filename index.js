@@ -1,6 +1,5 @@
 import express from "express";
 import bodyParser from "body-parser";
-import pkg from "pg";
 import bcrypt from "bcrypt";
 import passport from "passport";
 import initializePassport from "./passportConfig.js";
@@ -13,7 +12,6 @@ dotenv.config();
 
 initializePassport(passport);
 
-const { Client } = pkg;
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -200,15 +198,14 @@ app.get("/signup", (req, res) => {
   res.render("signup.ejs");
 });
 
-app.get("/logout", (req, res) => {
+app.get("/logout", (req, res, next) => {
   req.logout((err) => {
-    if (err) {
-      return next(err);
-    }
+    if (err) return next(err);
     req.flash("success_msg", "You have logged out");
     res.redirect("/login");
   });
 });
+
 
 app.post("/register", async (req, res) => {
   let {name, email, password, password2} = req.body;
@@ -242,7 +239,7 @@ app.post("/register", async (req, res) => {
         db.query(
           "INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id, password",
           [name, email, hashedPassword],
-          (err, results) => {
+          (err) => {
             if(err) {
               throw err;
             }
