@@ -7,7 +7,7 @@ import db from "./db.js";
 import session from "express-session";
 import flash from "connect-flash";
 import dotenv from "dotenv";
---test
+
 dotenv.config();
 
 initializePassport(passport);
